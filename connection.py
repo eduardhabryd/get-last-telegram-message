@@ -1,8 +1,7 @@
-import time
-
-import pika
-from dotenv import load_dotenv
 import os
+import aiormq
+import asyncio
+from dotenv import load_dotenv
 
 load_dotenv()
 
@@ -13,48 +12,34 @@ AMQP_VHOST = os.getenv("AMQP_VHOST")
 AMQP_PORT = os.getenv("AMQP_PORT")
 
 
-def wait_for_rabbitmq():
+async def wait_for_rabbitmq():
     max_retries = 10
     retry_delay = 5
 
     for _ in range(max_retries):
         try:
-            connection = pika.BlockingConnection(
-                pika.ConnectionParameters(
-                    host=AMQP_ADDRESS,
-                    port=int(AMQP_PORT),
-                    virtual_host=AMQP_VHOST,
-                    credentials=pika.PlainCredentials(AMQP_USER, AMQP_PASSWORD),
-                )
-            )
-            connection.close()
+            url = f"amqp://{AMQP_USER}:{AMQP_PASSWORD}@{AMQP_ADDRESS}:{AMQP_PORT}/{AMQP_VHOST}"
+            connection = await aiormq.connect(url)
+            await connection.close()
             print("RabbitMQ is up and running.")
             return True
         except Exception as e:
             print(f"Connection to RabbitMQ failed: {e}")
             print("Connection to RabbitMQ failed. Retrying...")
-            time.sleep(retry_delay)
+            await asyncio.sleep(retry_delay)
 
     print("Failed to connect to RabbitMQ after multiple retries.")
     return False
 
 
-def get_connection(local: bool = False) -> pika.BlockingConnection:
+async def get_connection(local: bool = False) -> aiormq.abc.AbstractConnection:
     if local:
-        connection = pika.BlockingConnection(
-            pika.ConnectionParameters(host="localhost")
-        )
+        connection = await aiormq.connect("amqp://localhost")
     else:
-        if not wait_for_rabbitmq():
+        if not await wait_for_rabbitmq():
             raise SystemExit("Unable to connect to RabbitMQ. Exiting...")
 
-        connection = pika.BlockingConnection(
-            pika.ConnectionParameters(
-                host=AMQP_ADDRESS,
-                port=int(AMQP_PORT),
-                virtual_host=AMQP_VHOST,
-                credentials=pika.PlainCredentials(AMQP_USER, AMQP_PASSWORD),
-            )
-        )
-    return connection
+        url = f"amqp://{AMQP_USER}:{AMQP_PASSWORD}@{AMQP_ADDRESS}:{AMQP_PORT}/{AMQP_VHOST}"
+        connection = await aiormq.connect(url)
 
+    return connection

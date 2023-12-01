@@ -24,14 +24,14 @@ messages = []
 async def command_start_handler(message: Message) -> dict:
     last_message = messages[-1]
     await message.answer(f"Last message was printed: {last_message}")
-    send_rabbit(f"print {last_message}")
+    await send_rabbit(f"print {last_message}")
 
 
 @dp.message(Command("send"))
 async def command_start_handler(message: Message) -> dict:
     last_message = messages[-1]
     await message.answer(f"Last message was send: {last_message}")
-    send_rabbit(f"send {last_message}")
+    await send_rabbit(f"send {last_message}")
 
 
 @dp.message()
