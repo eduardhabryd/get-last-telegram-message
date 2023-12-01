@@ -19,7 +19,10 @@ async def wait_for_rabbitmq():
 
     for _ in range(max_retries):
         try:
-            url = f"amqp://{AMQP_USER}:{AMQP_PASSWORD}@{AMQP_ADDRESS}:{AMQP_PORT}/{AMQP_VHOST}"
+            url = (
+                f"amqp://{AMQP_USER}:{AMQP_PASSWORD}"
+                + f"@{AMQP_ADDRESS}:{AMQP_PORT}/{AMQP_VHOST}"
+            )
             connection = await aiormq.connect(url)
             await connection.close()
             print("RabbitMQ is up and running.")
@@ -41,7 +44,10 @@ async def get_connection(local: bool = False) -> aiormq.abc.AbstractConnection:
         if not await wait_for_rabbitmq():
             raise SystemExit("Unable to connect to RabbitMQ. Exiting...")
 
-        url = f"amqp://{AMQP_USER}:{AMQP_PASSWORD}@{AMQP_ADDRESS}:{AMQP_PORT}/{AMQP_VHOST}"
+        url = (
+            f"amqp://{AMQP_USER}:{AMQP_PASSWORD}"
+            + f"@{AMQP_ADDRESS}:{AMQP_PORT}/{AMQP_VHOST}"
+        )
         connection = await aiormq.connect(url)
 
     try:

@@ -20,14 +20,14 @@ messages = []
 
 
 @dp.message(Command("print"))
-async def command_start_handler(message: Message) -> dict:
+async def command_print_handler(message: Message) -> None:
     last_message = messages[-1]
     await message.answer(f"Last message was printed: {last_message}")
     await send_rabbit(f"print {last_message}")
 
 
 @dp.message(Command("send"))
-async def command_start_handler(message: Message) -> dict:
+async def command_send_handler(message: Message) -> None:
     last_message = messages[-1]
     await message.answer(f"Last message was send: {last_message}")
     await send_rabbit(f"send {last_message}")
