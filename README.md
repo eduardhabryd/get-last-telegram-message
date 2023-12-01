@@ -15,7 +15,7 @@ This Python application is designed to asynchronously process messages from a Te
     cd get-last-telegram-message
    ```
 
-2. Create a Telegram bot and obtain the bot token from BotFather in Telegram.
+2. Create a Telegram bot and obtain the bot token from BotFather in Telegram. Here are the [instructions](instructions/BOT_SETUP.md).
 
 3. Create a `.env` file in the project root using `.env.example` as a template specifying your `BOT_TOKEN`. You can use 
    all the other details without changes for your convenience.
