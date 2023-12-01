@@ -1,6 +1,7 @@
 import os
 import aiormq
 import asyncio
+from contextlib import asynccontextmanager
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -32,6 +33,7 @@ async def wait_for_rabbitmq():
     return False
 
 
+@asynccontextmanager
 async def get_connection(local: bool = False) -> aiormq.abc.AbstractConnection:
     if local:
         connection = await aiormq.connect("amqp://localhost")
@@ -42,4 +44,7 @@ async def get_connection(local: bool = False) -> aiormq.abc.AbstractConnection:
         url = f"amqp://{AMQP_USER}:{AMQP_PASSWORD}@{AMQP_ADDRESS}:{AMQP_PORT}/{AMQP_VHOST}"
         connection = await aiormq.connect(url)
 
-    return connection
+    try:
+        yield connection
+    finally:
+        await connection.close()
